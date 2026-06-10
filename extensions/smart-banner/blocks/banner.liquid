@@ -1,0 +1,107 @@
+{% comment %}
+  Smart Alert Banner — App Embed Block
+  Exibe banner geo-segmentado por estado dos EUA com contador regressivo.
+{% endcomment %}
+
+<div
+  id="smart-alert-banner"
+  style="display:none; position:sticky; top:0; z-index:9999; font-family:inherit;"
+  aria-live="polite"
+  role="alert"
+>
+  <div id="smart-banner-inner" style="padding:12px 20px; text-align:center; position:relative;">
+    <span id="smart-banner-text" style="font-weight:600; font-size:15px;"></span>
+    <span id="smart-banner-state" style="font-size:13px; opacity:0.9; margin-left:6px;"></span>
+    <span id="smart-banner-timer" style="font-weight:700; margin-left:10px; font-size:14px;"></span>
+    <button
+      id="smart-banner-close"
+      onclick="smartBannerClose()"
+      aria-label="Close banner"
+      style="position:absolute; right:14px; top:50%; transform:translateY(-50%);
+             background:none; border:none; cursor:pointer; font-size:18px; line-height:1;
+             padding:4px 8px; border-radius:4px; opacity:0.8;"
+    >✕</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  var STORAGE_KEY = 'sab_closed_{{ shop.id }}';
+  var API_URL     = '{{ app.url }}/api/settings';
+
+  // Não mostrar se já foi fechado nessa sessão
+  if (sessionStorage.getItem(STORAGE_KEY)) return;
+
+  window.smartBannerClose = function () {
+    document.getElementById('smart-alert-banner').style.display = 'none';
+    sessionStorage.setItem(STORAGE_KEY, '1');
+  };
+
+  function startCountdown(deadline) {
+    var timerEl = document.getElementById('smart-banner-timer');
+    if (!deadline || !timerEl) return;
+
+    var end = new Date(deadline).getTime();
+    if (isNaN(end)) return;
+
+    var tick = setInterval(function () {
+      var diff = end - Date.now();
+      if (diff <= 0) {
+        clearInterval(tick);
+        timerEl.textContent = '⏰ Offer expired';
+        return;
+      }
+      var d = Math.floor(diff / 86400000);
+      var h = Math.floor((diff % 86400000) / 3600000);
+      var m = Math.floor((diff % 3600000) / 60000);
+      var s = Math.floor((diff % 60000) / 1000);
+      timerEl.textContent = (d > 0 ? d + 'd ' : '') + h + 'h ' + m + 'm ' + s + 's';
+    }, 1000);
+  }
+
+  function showBanner(settings) {
+    var wrapper = document.getElementById('smart-alert-banner');
+    var inner   = document.getElementById('smart-banner-inner');
+    var textEl  = document.getElementById('smart-banner-text');
+    var stateEl = document.getElementById('smart-banner-state');
+    var closeEl = document.getElementById('smart-banner-close');
+
+    inner.style.background  = settings.backgroundColor || '#ff6b00';
+    inner.style.color       = settings.textColor       || '#ffffff';
+    closeEl.style.color     = settings.textColor       || '#ffffff';
+
+    textEl.textContent = settings.bannerText || 'Special offer for your state!';
+
+    if (settings.showState && settings.targetState) {
+      stateEl.textContent = '📍 ' + settings.targetState + ' only';
+    }
+
+    wrapper.style.display = 'block';
+    startCountdown(settings.deadline);
+  }
+
+  // 1. Buscar configurações do app
+  fetch(API_URL)
+    .then(function (r) { return r.json(); })
+    .then(function (settings) {
+      if (!settings || !settings.isActive) return;
+
+      // 2. Detectar estado do visitante via IP
+      fetch('https://ipapi.co/json/')
+        .then(function (r) { return r.json(); })
+        .then(function (geo) {
+          var visitorState = (geo.region_code || '').toUpperCase();
+          if (visitorState === settings.targetState.toUpperCase()) {
+            showBanner(settings);
+          }
+        })
+        .catch(function () {
+          // Fallback: mostrar para todos se a geolocalização falhar
+          showBanner(settings);
+        });
+    })
+    .catch(function (err) {
+      console.warn('[SmartAlertBanner] Erro ao carregar configurações:', err);
+    });
+})();
+</script>

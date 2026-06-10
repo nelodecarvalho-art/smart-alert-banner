@@ -1,0 +1,147 @@
+"use client";
+
+import { Page, Card, TextField, Select, Button, Layout, Banner, Checkbox } from "@shopify/polaris";
+import { useState, useEffect } from "react";
+
+export default function SettingsPage() {
+  const [bannerText, setBannerText] = useState("");
+  const [targetState, setTargetState] = useState("CA");
+  const [showStateOnBanner, setShowStateOnBanner] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Carregar dados iniciais
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => {
+        if (!res.ok) throw new Error("Falha ao carregar");
+        return res.json();
+      })
+      .then((data) => {
+        setBannerText(data.bannerText || "");
+        setTargetState(data.targetState || "CA");
+        setShowStateOnBanner(data.showStateOnBanner || false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("Erro ao carregar configurações");
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  const saveSettings = async () => {
+    setSaving(true);
+    setError(null);
+    setSuccess(false);
+
+    try {
+      const response = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bannerText, targetState, showStateOnBanner }),
+      });
+
+      if (!response.ok) throw new Error("Erro no servidor");
+
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 3000);
+    } catch (err) {
+      setError(err.message || "Erro ao salvar configurações");
+      setTimeout(() => setError(null), 5000);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const getBannerDisplayText = () => {
+    let text = bannerText || "Seu texto aqui";
+    if (showStateOnBanner && targetState) {
+      text += ` (${targetState})`;
+    }
+    return text;
+  };
+
+  if (loading) {
+    return (
+      <Page title="Smart Alert Banner - Configurações">
+        <Card sectioned>Carregando configurações...</Card>
+      </Page>
+    );
+  }
+
+  return (
+    <Page title="Smart Alert Banner - Configurações">
+      <Layout>
+        <Layout.Section>
+          {success && (
+            <Banner tone="success" onDismiss={() => setSuccess(false)}>
+              Configurações salvas com sucesso!
+            </Banner>
+          )}
+
+          {error && (
+            <Banner tone="critical" onDismiss={() => setError(null)}>
+              {error}
+            </Banner>
+          )}
+
+          <Card sectioned>
+            <TextField
+              label="Texto do banner"
+              value={bannerText}
+              onChange={setBannerText}
+              help="Ex: Frete grátis para clientes da Califórnia!"
+              autoComplete="off"
+            />
+
+            <Select
+              label="Estado alvo"
+              options={[
+                { label: "Califórnia (CA)", value: "CA" },
+                { label: "Texas (TX)", value: "TX" },
+                { label: "Nova York (NY)", value: "NY" },
+                { label: "Flórida (FL)", value: "FL" },
+              ]}
+              value={targetState}
+              onChange={setTargetState}
+            />
+
+            <Checkbox
+              label="Mostrar estado no banner"
+              checked={showStateOnBanner}
+              onChange={setShowStateOnBanner}
+              help="Exibe o estado alvo junto com o texto do banner"
+            />
+
+            <Button primary onClick={saveSettings} loading={saving}>
+              Salvar banner
+            </Button>
+          </Card>
+        </Layout.Section>
+
+        <Layout.Section>
+          <Card sectioned>
+            <h2 style={{ marginBottom: "12px" }}>Preview do banner</h2>
+            <div
+              style={{
+                background: "#ff6b00",
+                color: "white",
+                padding: "12px",
+                textAlign: "center",
+                borderRadius: "4px",
+                transition: "all 0.2s ease",
+              }}
+            >
+              {getBannerDisplayText()}
+            </div>
+            <p style={{ marginTop: "12px", color: "#6b6b6b", fontSize: "12px" }}>
+              * O banner será exibido apenas para clientes do estado {targetState}
+            </p>
+          </Card>
+        </Layout.Section>
+      </Layout>
+    </Page>
+  );
+}

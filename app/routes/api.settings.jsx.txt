@@ -1,0 +1,11 @@
+export async function action({ request }) {
+  const data = await request.json();
+  console.log("Dados recebidos:", data);
+  
+  // Aqui você salvaria no banco de dados
+  // Por enquanto, só retorna sucesso
+  
+  return new Response(JSON.stringify({ success: true }), {
+    headers: { "Content-Type": "application/json" },
+  });
+}

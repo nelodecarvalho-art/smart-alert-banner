@@ -1,0 +1,67 @@
+<div id="smart-banner" style="display:none; background:#ff6b00; color:white; text-align:center; padding:12px; font-family:inherit; position:sticky; top:0; z-index:9999;">
+  <span id="banner-text">Carregando...</span>
+  <span id="countdown-timer" style="font-weight:bold; margin-left:10px;"></span>
+  <button onclick="closeBanner()" style="float:right; background:none; border:none; color:white; cursor:pointer; font-size:16px;">✕</button>
+</div>
+
+<script>
+  (function() {
+    const banner = document.getElementById('smart-banner');
+    const targetState = "{{ shop.metafields.smart_banner.target_state | default: 'CA' }}";
+    const bannerText = "{{ shop.metafields.smart_banner.banner_text | default: 'Oferta especial!' }}";
+    const deadline = "{{ shop.metafields.smart_banner.deadline }}";
+
+    // Função para fechar o banner
+    window.closeBanner = function() {
+      banner.style.display = 'none';
+      localStorage.setItem('banner_closed', 'true');
+    };
+
+    // Verificar se já foi fechado
+    if (localStorage.getItem('banner_closed') === 'true') {
+      return;
+    }
+
+    // Pegar estado do cliente
+    fetch('https://ipapi.co/region_code/')
+      .then(res => res.text())
+      .then(state => {
+        if(state === targetState) {
+          showBanner();
+        }
+      })
+      .catch(() => {
+        // Fallback: mostra mesmo sem localização
+        showBanner();
+      });
+
+    function showBanner() {
+      banner.style.display = 'block';
+      document.getElementById('banner-text').innerText = bannerText;
+
+      // Contador regressivo
+      if(deadline) {
+        const countdown = setInterval(() => {
+          const now = new Date();
+          const diff = new Date(deadline) - now;
+          
+          if(diff <= 0) {
+            clearInterval(countdown);
+            document.getElementById('countdown-timer').innerHTML = 'Oferta encerrada!';
+            return;
+          }
+          
+          const days = Math.floor(diff / 86400000);
+          const hours = Math.floor((diff % 86400000) / 3600000);
+          const mins = Math.floor((diff % 3600000) / 60000);
+          
+          let timerText = '';
+          if(days > 0) timerText += `${days}d `;
+          timerText += `${hours}h ${mins}m`;
+          
+          document.getElementById('countdown-timer').innerHTML = ` ⏰ ${timerText}`;
+        }, 1000);
+      }
+    }
+  })();
+</script>

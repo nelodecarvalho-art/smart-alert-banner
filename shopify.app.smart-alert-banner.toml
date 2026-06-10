@@ -1,0 +1,19 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "f60a7fca2f7d0164558da2fa611a6272"
+application_url = "https://fleece-hollywood-advisor-establishing.trycloudflare.com"
+embedded = true
+name = "smart-alert-banner"
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = ""
+
+[auth]
+redirect_urls = [ "https://fleece-hollywood-advisor-establishing.trycloudflare.com/api/auth" ]
+
+[webhooks]
+api_version = "2026-07"
+
+[build]
+automatically_update_urls_on_dev = true
