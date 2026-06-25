@@ -1,0 +1,6 @@
+api_version = "2025-10"
+
+[[extensions]]
+type   = "theme_app_extension"
+name   = "Smart Alert Banner"
+handle = "smart-banner"

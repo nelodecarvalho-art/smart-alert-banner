@@ -1,0 +1,34 @@
+# Smart Alert Banner — Shopify App Configuration
+# Docs: https://shopify.dev/docs/apps/tools/cli/configuration
+
+name       = "Smart Alert Banner"
+client_id  = "COLE_SUA_CLIENT_ID_AQUI"
+application_url = "https://SEU-DOMINIO-DE-PRODUCAO.com"
+embedded   = true
+
+[access_scopes]
+# This app only needs to read themes in order for the Theme App Extension
+# to be installed. No product or content scopes are required.
+scopes = "read_themes"
+
+[auth]
+redirect_urls = [
+  "https://SEU-DOMINIO-DE-PRODUCAO.com/auth/callback",
+  "https://SEU-DOMINIO-DE-PRODUCAO.com/auth/shopify/callback",
+  "https://SEU-DOMINIO-DE-PRODUCAO.com/api/auth"
+]
+
+[webhooks]
+api_version = "2025-10"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/uninstalled"]
+  uri    = "/webhooks/app/uninstalled"
+
+  [[webhooks.subscriptions]]
+  topics = ["app/scopes_update"]
+  uri    = "/webhooks/app/scopes_update"
+
+[build]
+automatically_update_urls_on_dev = true
+include_config_on_deploy         = true
