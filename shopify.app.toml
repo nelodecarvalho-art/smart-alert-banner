@@ -2,7 +2,7 @@
 # Docs: https://shopify.dev/docs/apps/tools/cli/configuration
 
 name       = "Smart Alert Banner"
-client_id  = "COLE_SUA_CLIENT_ID_AQUI"
+client_id  = "9e0bba4b75c1b59fe25aed45a31cc48"
 application_url = "https://SEU-DOMINIO-DE-PRODUCAO.com"
 embedded   = true
 
