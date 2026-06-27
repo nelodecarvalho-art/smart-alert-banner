@@ -26,10 +26,11 @@ uri    = "/webhooks/app/uninstalled"
 topics = ["app/scopes_update"]
 uri    = "/webhooks/app/scopes_update"
 
-[privacy_compliance]
+[webhooks.privacy_compliance]
 customer_data_request_url = "https://smart-alert-banner.onrender.com/webhooks/customers/data_request"
 customer_deletion_url     = "https://smart-alert-banner.onrender.com/webhooks/customers/redact"
 shop_deletion_url         = "https://smart-alert-banner.onrender.com/webhooks/shop/redact"
+
 
 [build]
 automatically_update_urls_on_dev = false
