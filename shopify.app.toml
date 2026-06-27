@@ -30,5 +30,5 @@ api_version = "2025-10"
   uri    = "/webhooks/app/scopes_update"
 
 [build]
-automatically_update_urls_on_dev = true
+automatically_update_urls_on_dev = false
 include_config_on_deploy         = true
