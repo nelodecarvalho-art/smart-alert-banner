@@ -87,6 +87,12 @@
       if (!settings || !settings.isActive) return;
 
       // 2. Detect visitor's US state via IP geolocation (ipapi.co free tier)
+      // ?preview_banner=1 bypasses geo-detection (for testing/screenshots only)
+      if (new URLSearchParams(window.location.search).get('preview_banner') === '1') {
+        showBanner(settings);
+        return;
+      }
+
       fetch('https://ipapi.co/json/')
         .then(function (r) { return r.json(); })
         .then(function (geo) {
