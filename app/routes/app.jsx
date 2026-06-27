@@ -26,13 +26,29 @@ export default function App() {
 
 export function ErrorBoundary() {
   const error = useRouteError();
-  // Render boundary.error for Shopify's auth redirect responses (they carry auth headers)
-  // but also show debug info so we can diagnose blank-screen issues.
   const isResponse = error instanceof Response;
+  // Extract Location header server-side (headers not available after serialization to client)
+  const redirectTo = isResponse ? (error.headers?.get?.("Location") ?? null) : null;
+
   return (
     <>
       {boundary.error(error)}
-      {/* Temp debug overlay — remove after auth is confirmed working */}
+      {/*
+        When authenticate.admin throws a 302, React Router catches it in ErrorBoundary
+        instead of following the redirect. We force the redirect here so OAuth can start.
+        window.top ensures the top frame navigates (required for embedded apps).
+      */}
+      {redirectTo && (
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){
+              var dest = ${JSON.stringify(redirectTo)};
+              try { window.top.location.href = dest; }
+              catch(e) { window.location.href = dest; }
+            })();`,
+          }}
+        />
+      )}
       <div
         style={{
           position: "fixed", bottom: 0, left: 0, right: 0,
@@ -43,9 +59,8 @@ export function ErrorBoundary() {
       >
         <strong style={{ color: "#ff6b00" }}>AUTH DEBUG</strong>
         {" | "}
-        {isResponse
-          ? `Response ${error.status} ${error.statusText}`
-          : String(error)}
+        {isResponse ? `Response ${error.status}` : String(error)}
+        {redirectTo && ` → ${redirectTo.substring(0, 120)}`}
       </div>
     </>
   );
