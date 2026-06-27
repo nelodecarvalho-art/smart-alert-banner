@@ -17,7 +17,7 @@ export default function PrivacyPolicy() {
   return (
     <div style={S.page}>
       <h1 style={S.h1}>Privacy Policy</h1>
-      <p style={S.updated}>Last updated: June 2025</p>
+      <p style={S.updated}>Last updated: June 2026</p>
 
       <p style={S.p}>
         Smart Alert Banner ("the App") is developed and operated by NeloTech.

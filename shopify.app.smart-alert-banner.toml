@@ -9,7 +9,7 @@ name = "smart-alert-banner"
 url = "https://smart-alert-banner.onrender.com/app/additional"
 
 [access_scopes]
-scopes = "read_themes"
+scopes = ""
 
 [auth]
 redirect_urls = [
@@ -19,7 +19,7 @@ redirect_urls = [
 ]
 
 [webhooks]
-api_version = "2026-07"
+api_version = "2025-10"
 
 [[webhooks.subscriptions]]
 topics = ["app/uninstalled"]
