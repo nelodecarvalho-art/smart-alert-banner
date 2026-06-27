@@ -1,4 +1,4 @@
-import { authenticate } from "../shopify.server";
+import { authenticate, MONTHLY_PLAN, ANNUAL_PLAN } from "../shopify.server";
 import db from "../db.server";
 
 const HEX_COLOR_RE = /^#[0-9a-fA-F]{6}$/;
@@ -31,8 +31,17 @@ export async function loader({ request }) {
 
 // POST — save or update settings for this shop
 export async function action({ request }) {
-  const { session } = await authenticate.admin(request);
+  const { session, billing } = await authenticate.admin(request);
   const { shop } = session;
+
+  const billingCheck = await billing
+    .require({
+      plans: [MONTHLY_PLAN, ANNUAL_PLAN],
+      isTest: process.env.NODE_ENV !== "production",
+      onFailure: () => null,
+    })
+    .catch(() => null);
+  const hasBilling = !!billingCheck;
 
   let body;
   try {
@@ -61,7 +70,7 @@ export async function action({ request }) {
     backgroundColor: sanitizeColor(backgroundColor, "#ff6b00"),
     textColor:       sanitizeColor(textColor, "#ffffff"),
     isActive:        isActive ?? true,
-    deadline:        deadline || null,
+    deadline:        hasBilling ? (deadline || null) : null,
   };
 
   const existing = await db.bannerSetting.findFirst({ where: { shop } });

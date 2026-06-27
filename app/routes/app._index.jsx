@@ -95,7 +95,11 @@ const S = {
   bannerDemo:    { borderRadius: 10, padding: "16px 40px", fontSize: "1rem", fontWeight: 600, position: "relative" },
   alertOk:       { background: "#e6f7ee", color: "#1a7a4a", border: "1px solid #b7e5cc", padding: "12px 16px", borderRadius: 8, marginBottom: 16, fontSize: "0.9rem" },
   alertErr:      { background: "#fff0f0", color: "#c0392b", border: "1px solid #fbb", padding: "12px 16px", borderRadius: 8, marginBottom: 16, fontSize: "0.9rem" },
-  billingBanner: { background: "#fff8e1", border: "1.5px solid #ffcc02", borderRadius: 10, padding: "16px 20px", marginBottom: 24, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" },
+  billingBanner: { background: "#f0fdf4", border: "1.5px solid #86efac", borderRadius: 10, padding: "16px 20px", marginBottom: 24, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" },
+  upgradeBanner: { background: "#fff8e1", border: "1.5px solid #ffcc02", borderRadius: 10, padding: "16px 20px", marginBottom: 24, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" },
+  lockedField:   { position: "relative" },
+  lockedOverlay: { background: "#f9fafb", border: "1.5px dashed #d1d5db", borderRadius: 8, padding: "10px 14px", fontSize: "0.9rem", color: "#9ca3af", display: "flex", alignItems: "center", gap: 8 },
+  btnUpgrade:    { background: "#ff6b00", color: "#fff", border: "none", padding: "6px 14px", borderRadius: 6, fontSize: "0.82rem", fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" },
 };
 
 export default function Index() {
@@ -186,35 +190,46 @@ export default function Index() {
       {success && <div role="status" style={S.alertOk}>✅ Settings saved successfully! Your banner is now live.</div>}
       {error   && <div role="alert"  style={S.alertErr}>❌ {error}</div>}
 
-      {!hasBilling && (
-        <div style={S.billingBanner} role="complementary" aria-label="Subscription required">
-          <span aria-hidden="true" style={{ fontSize: "1.5rem" }}>⚡</span>
-          <div style={{ flex: 1 }}>
-            <strong>Start your free 7-day trial</strong>
-            <p style={{ margin: "4px 0 0", color: "#666", fontSize: "0.88rem" }}>
-              Activate a plan to publish your banner to real customers.
-            </p>
+      {!hasBilling ? (
+        <>
+          <div style={S.billingBanner} role="complementary" aria-label="Free plan active">
+            <span aria-hidden="true" style={{ fontSize: "1.5rem" }}>✅</span>
+            <div style={{ flex: 1 }}>
+              <strong>Free plan — your banner is live</strong>
+              <p style={{ margin: "4px 0 0", color: "#166534", fontSize: "0.88rem" }}>
+                Your banner is active and showing to visitors in your target state. No payment required.
+              </p>
+            </div>
           </div>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-            <button
-              style={S.btnSecondary}
-              onClick={() => startSubscription("monthly")}
-              disabled={subLoading}
-              aria-label="Subscribe monthly at $9.99"
-            >
-              {subLoading ? "Loading…" : "$9.99 / month"}
-            </button>
-            <button
-              style={S.btnPrimary}
-              onClick={() => startSubscription("annual")}
-              disabled={subLoading}
-              aria-label="Subscribe annually at $99.99 — save 17%"
-            >
-              {subLoading ? "Loading…" : "$99.99 / year — Save 17%"}
-            </button>
+          <div style={S.upgradeBanner} role="complementary" aria-label="Upgrade to unlock countdown">
+            <span aria-hidden="true" style={{ fontSize: "1.5rem" }}>⏱️</span>
+            <div style={{ flex: 1 }}>
+              <strong>Unlock the countdown timer</strong>
+              <p style={{ margin: "4px 0 0", color: "#666", fontSize: "0.88rem" }}>
+                Add urgency to your banner with a live countdown clock. Start your 14-day free trial.
+              </p>
+            </div>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <button
+                style={S.btnSecondary}
+                onClick={() => startSubscription("monthly")}
+                disabled={subLoading}
+                aria-label="Subscribe monthly at $9.99"
+              >
+                {subLoading ? "Loading…" : "$9.99 / month"}
+              </button>
+              <button
+                style={S.btnPrimary}
+                onClick={() => startSubscription("annual")}
+                disabled={subLoading}
+                aria-label="Subscribe annually at $99.99"
+              >
+                {subLoading ? "Loading…" : "$99.99 / year"}
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        </>
+      ) : null}
 
       <div style={S.card}>
         <p style={S.cardTitle}>⚙️ Banner Settings</p>
@@ -265,14 +280,30 @@ export default function Index() {
           </div>
 
           <div style={S.formGroup}>
-            <label htmlFor="deadline" style={S.label}>Countdown deadline (optional)</label>
-            <input
-              id="deadline"
-              style={S.input}
-              type="datetime-local"
-              value={settings.deadline || ""}
-              onChange={(e) => handleChange("deadline", e.target.value)}
-            />
+            <label style={S.label}>
+              Countdown deadline {!hasBilling && <span style={{ color: "#ff6b00", fontWeight: 700 }}>⭐ Pro</span>}
+            </label>
+            {hasBilling ? (
+              <input
+                id="deadline"
+                style={S.input}
+                type="datetime-local"
+                value={settings.deadline || ""}
+                onChange={(e) => handleChange("deadline", e.target.value)}
+              />
+            ) : (
+              <div style={S.lockedOverlay} aria-label="Countdown timer requires paid plan">
+                <span aria-hidden="true">🔒</span>
+                <span style={{ flex: 1 }}>Unlock with a paid plan</span>
+                <button
+                  style={S.btnUpgrade}
+                  onClick={() => startSubscription("monthly")}
+                  disabled={subLoading}
+                >
+                  Upgrade
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
