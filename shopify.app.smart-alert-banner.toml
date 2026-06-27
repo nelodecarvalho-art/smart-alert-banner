@@ -5,6 +5,9 @@ application_url = "https://smart-alert-banner.onrender.com/app"
 embedded = true
 name = "smart-alert-banner"
 
+[app_preferences]
+url = "https://smart-alert-banner.onrender.com/app/additional"
+
 [access_scopes]
 scopes = "read_themes"
 
