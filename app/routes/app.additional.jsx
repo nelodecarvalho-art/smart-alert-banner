@@ -64,8 +64,8 @@ export default function HelpPage() {
         <h2 style={S.h3}>Need help?</h2>
         <p style={S.p}>
           Email us at{" "}
-          <a href="mailto:support@smartalertbanner.com" style={{ color: "#ff6b00" }}>
-            support@smartalertbanner.com
+          <a href="mailto:nelodecarvalho@gmail.com" style={{ color: "#ff6b00" }}>
+            nelodecarvalho@gmail.com
           </a>
           . We respond within one business day.
         </p>
