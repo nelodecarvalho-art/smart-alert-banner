@@ -1,7 +1,7 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
 client_id = "9e0bbaf4b75c1b59fe25aed45a31cc48"
-application_url = "https://smart-alert-banner.onrender.com"
+application_url = "https://smart-alert-banner.onrender.com/app"
 embedded = true
 name = "smart-alert-banner"
 
