@@ -4,6 +4,34 @@
   The banner auto-hides after the visitor dismisses it (persisted in sessionStorage).
 {% endcomment %}
 
+<style>
+@media (max-width: 480px) {
+  #smart-banner-inner {
+    padding: 10px 40px 10px 12px !important;
+  }
+  #smart-banner-text {
+    font-size: 13px !important;
+  }
+  #smart-banner-state {
+    display: block !important;
+    margin-left: 0 !important;
+    margin-top: 3px !important;
+    font-size: 11px !important;
+  }
+  #smart-banner-timer {
+    display: block !important;
+    margin-left: 0 !important;
+    margin-top: 3px !important;
+    font-size: 12px !important;
+  }
+  #smart-banner-close {
+    font-size: 15px !important;
+    right: 8px !important;
+    padding: 2px 6px !important;
+  }
+}
+</style>
+
 <div
   id="smart-alert-banner"
   style="display:none; position:sticky; top:0; z-index:9999; font-family:inherit;"
