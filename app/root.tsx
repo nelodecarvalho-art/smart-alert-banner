@@ -1,17 +1,23 @@
-import { Outlet, Meta, Links, Scripts, ScrollRestoration } from "react-router";
+import { Outlet, Meta, Links, Scripts, ScrollRestoration, useLoaderData } from "react-router";
 
-export const meta = () => [
-  { title: "Smart Alert Banner" },
-  { name: "description", content: "Show geo-targeted banners to boost conversions on your Shopify store" },
-  { viewport: "width=device-width,initial-scale=1" },
-];
+export const loader = () => ({
+  apiKey: process.env.SHOPIFY_API_KEY ?? "",
+});
 
 export default function Root() {
+  const { apiKey } = useLoaderData<typeof loader>();
+
   return (
     <html lang="en">
       <head>
         <Meta />
         <Links />
+        {apiKey && (
+          <script
+            src="https://cdn.shopify.com/shopifycloud/app-bridge.js"
+            data-api-key={apiKey}
+          />
+        )}
       </head>
       <body style={{ margin: 0, padding: 0, background: "#f7f8fa" }}>
         <Outlet />
