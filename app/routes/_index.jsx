@@ -33,7 +33,7 @@ export async function loader({ request }) {
   try {
     const check = await billing.require({
       plans: [MONTHLY_PLAN, ANNUAL_PLAN],
-      isTest: true,
+      isTest: process.env.NODE_ENV !== "production",
     });
     hasSubscription = !!(check?.appSubscriptions?.[0]);
   } catch {
