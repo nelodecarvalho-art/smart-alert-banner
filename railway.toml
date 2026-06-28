@@ -3,7 +3,7 @@ builder = "nixpacks"
 buildCommand = "npm ci && npx prisma generate && npx prisma migrate deploy && npm run build"
 
 [deploy]
-startCommand = "sh -c 'HOST=0.0.0.0 npm run start'"
+startCommand = "sh scripts/prod-start.sh"
 healthcheckPath = "/health"
 healthcheckTimeout = 60
 restartPolicyType = "on_failure"
