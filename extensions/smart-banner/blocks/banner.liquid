@@ -5,7 +5,7 @@
 
 <div
   id="smart-alert-banner"
-  style="display:none; position:sticky; top:0; z-index:9999; font-family:inherit;"
+  style="display:none; position:fixed; top:0; left:0; right:0; width:100%; z-index:2147483647; font-family:inherit; box-shadow:0 2px 8px rgba(0,0,0,0.15);"
   aria-live="polite"
   role="alert"
 >
@@ -30,7 +30,7 @@
   var API_URL     = '{{ app.url }}/api/public/settings?shop={{ shop.permanent_domain }}';
   var isPreview   = new URLSearchParams(window.location.search).has('smart_banner_preview');
 
-  // Preview mode always shows — clear any prior "closed" state
+  // Preview mode always shows — bypass sessionStorage
   if (!isPreview && sessionStorage.getItem(STORAGE_KEY)) return;
 
   window.smartBannerClose = function () {
@@ -41,10 +41,8 @@
   function startCountdown(deadline) {
     var timerEl = document.getElementById('smart-banner-timer');
     if (!deadline || !timerEl) return;
-
     var end = new Date(deadline).getTime();
     if (isNaN(end)) return;
-
     var tick = setInterval(function () {
       var diff = end - Date.now();
       if (diff <= 0) {
@@ -67,9 +65,12 @@
     var stateEl = document.getElementById('smart-banner-state');
     var closeEl = document.getElementById('smart-banner-close');
 
-    inner.style.background  = settings.backgroundColor || '#ff6b00';
-    inner.style.color       = settings.textColor       || '#ffffff';
-    closeEl.style.color     = settings.textColor       || '#ffffff';
+    // Move to top of body so fixed positioning works correctly
+    document.body.insertBefore(wrapper, document.body.firstChild);
+
+    inner.style.background = settings.backgroundColor || '#ff6b00';
+    inner.style.color      = settings.textColor       || '#ffffff';
+    closeEl.style.color    = settings.textColor       || '#ffffff';
 
     textEl.textContent = settings.bannerText || 'Special offer for your state!';
 
@@ -87,11 +88,10 @@
     showState: true,
     backgroundColor: '#ff6b00',
     textColor: '#ffffff',
-    isActive: true,
     deadline: null,
   };
 
-  // Preview mode: show immediately with defaults, then try to update with real settings
+  // Preview mode: show immediately, no API needed
   if (isPreview) {
     showBanner(DEFAULT_PREVIEW);
     fetch(API_URL)
@@ -106,7 +106,6 @@
     .then(function (r) { return r.json(); })
     .then(function (settings) {
       if (!settings || !settings.isActive) return;
-
       fetch('https://ipapi.co/json/')
         .then(function (r) { return r.json(); })
         .then(function (geo) {
