@@ -2,37 +2,55 @@
 
 ## Estado do Projeto (atualizado 2026-06-28)
 
-### Produção
-- **URL**: `https://smart-alert-banner-production.up.railway.app`
+### Status atual
+- **App em produção**: `https://smart-alert-banner-production.up.railway.app`
+- **OAuth**: funcionando — `Session.state` corrigido para nullable (migration `20260628000000_session_state_optional`)
+- **Banner**: aparecendo com `?smart_banner_preview=1` — usa `position:fixed` + move para topo do DOM
+- **App Store**: registrado para distribuição pública ($19 pago) — próximo passo: completar listing
+- **Extensão Shopify**: versão 9 (`smart-alert-banner-9`) publicada e ativa
+
+### Infraestrutura
 - **Plataforma**: Railway — projeto `vibrant-rejoicing`, serviço `smart-alert-banner`
 - **DB**: PostgreSQL (serviço `Postgres` no mesmo projeto Railway)
-- **Builder**: Dockerfile (Railway detecta e usa o `Dockerfile` na raiz — ignora `railway.toml` builder)
+- **Builder**: Dockerfile (Railway usa o `Dockerfile` na raiz; `railway.toml` builder é ignorado)
 
 ### Variáveis de ambiente no Railway (serviço smart-alert-banner)
 - `DATABASE_URL` = `${{Postgres.DATABASE_URL}}` (Reference Variable)
-- `SHOPIFY_API_KEY` = chave do Partner Dashboard
-- `SHOPIFY_API_SECRET` = segredo do Partner Dashboard
+- `SHOPIFY_API_KEY` = `f60a7fca2f7d0164558da2fa611a6272`
+- `SHOPIFY_API_SECRET` = (valor secreto no Railway)
 - `SHOPIFY_APP_URL` = `https://smart-alert-banner-production.up.railway.app`
+- `SCOPES` = `write_script_tags,read_script_tags`
 - `NODE_ENV` = `production`
 
 ### Build & Start (Dockerfile)
 - Build: `npm ci --omit=dev` → `npx prisma generate && npm run build`
 - Start (via `railway.toml`): `node scripts/start.js`
-  - `scripts/start.js` roda `prisma migrate deploy` via spawnSync antes de subir o servidor
+  - Roda `prisma migrate deploy` via spawnSync antes de subir o servidor
   - Define `HOST=0.0.0.0` para binding em todas as interfaces
 
-### Próximos passos pendentes
-1. **Sincronizar Partner Dashboard**: rodar `npx shopify app deploy --allow-updates` no terminal (requer login interativo) — ou atualizar manualmente no Partner Dashboard: App URL e Allowed redirection URL(s)
-2. **Privacy Policy e Terms of Service**: criar páginas e adicionar URLs no `shopify.app.toml` e Partner Dashboard
-3. **App Store listing**: screenshots, ícone 1024×1024, descrição, email de suporte — feito no Partner Dashboard
+### Próximo passo: App Store listing
+Completar no Partner Dashboard:
+1. **Ícone**: 1200×1200px (exibido como 1024×1024)
+2. **Screenshots**: mínimo 3, 1280×720px ou maior
+3. **Descrição**: tagline + descrição longa com benefícios
+4. **Privacy Policy URL**: `https://smart-alert-banner-production.up.railway.app/privacy`
+5. **Support email**: nelodecarvalho@gmail.com
+6. **Pricing**: planos Monthly ($9.99) e Annual ($99.99) com trial de 7 dias
 
 ### Arquitetura das rotas
 - `app/routes/_index.jsx` — dashboard principal (AppProvider + boundary.headers + loader único)
 - `app/routes/api.billing.jsx` — verifica assinatura ativa
 - `app/routes/api.public.settings.jsx` — API pública com rate limiting (100 req/min/IP)
+- `app/routes/privacy.jsx` — página pública de Privacy Policy
 - `app/routes/health.jsx` — health check (`/health` → `{"ok":true}`)
 - `app/routes/webhooks.*.jsx` — GDPR + app/uninstalled + app/scopes_update
-- `extensions/smart-banner/blocks/banner.liquid` — banner com geo-check + `?smart_banner_preview=1` bypass
+- `extensions/smart-banner/blocks/banner.liquid` — banner com geo-check + preview bypass (`?smart_banner_preview=1`)
+
+### Bugs corrigidos (histórico)
+- `Session.state NOT NULL` → OAuth callback falhava silenciosamente → agora nullable
+- `prisma generate` no postinstall → falhava porque schema não copiado ainda → movido para Dockerfile após `COPY . .`
+- Banner com `position:sticky` + injeção no final do body → invisível → corrigido para `position:fixed`
+- `sessionStorage` check antes de preview check → preview bloqueado → reordenado
 
 
 
