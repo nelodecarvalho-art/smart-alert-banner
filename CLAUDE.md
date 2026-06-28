@@ -39,7 +39,13 @@
 
 ### Próximo passo
 Aguardar email de aprovação da Shopify em nelodecarvalho@gmail.com.
-Após aprovação: seguir `docs/pos-revisao-checklist.md` (e2e tests, billing, monitoring, divulgação).
+Após aprovação: seguir `docs/pos-revisao-checklist.md` (divulgação, listing público, primeiros usuários).
+
+### Testes concluídos (2026-06-28)
+- OAuth: instalação na dev store `nelo-dev.myshopify.com` ✅
+- Banner: save + exibição com `?smart_banner_preview=1` ✅
+- Billing: trial de 7 dias apareceu corretamente, `hasSubscription` reconhecido ✅
+- `BILLING_TEST_MODE=true` ativo no Railway durante os testes (remover após aprovação em produção)
 
 ### Arquitetura das rotas
 - `app/routes/_index.jsx` — dashboard principal (AppProvider + boundary.headers + loader único)
