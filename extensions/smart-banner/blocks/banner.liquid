@@ -92,19 +92,22 @@
     deadline: null,
   };
 
-  // 1. Buscar configurações do app
+  // Preview mode: show immediately with defaults, then try to update with real settings
+  if (isPreview) {
+    showBanner(DEFAULT_PREVIEW);
+    fetch(API_URL)
+      .then(function (r) { return r.json(); })
+      .then(function (s) { if (s && s.bannerText) showBanner(s); })
+      .catch(function () {});
+    return;
+  }
+
+  // Normal mode: fetch settings then geo-check
   fetch(API_URL)
     .then(function (r) { return r.json(); })
     .then(function (settings) {
-      // Modo preview: ignora isActive e usa defaults se sem settings
-      if (isPreview) {
-        showBanner(settings && settings.bannerText ? settings : DEFAULT_PREVIEW);
-        return;
-      }
-
       if (!settings || !settings.isActive) return;
 
-      // 2. Detectar estado do visitante via IP
       fetch('https://ipapi.co/json/')
         .then(function (r) { return r.json(); })
         .then(function (geo) {
