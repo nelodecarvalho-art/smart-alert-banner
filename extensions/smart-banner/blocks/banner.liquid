@@ -28,9 +28,10 @@
 (function () {
   var STORAGE_KEY = 'sab_closed_{{ shop.id }}';
   var API_URL     = '{{ app.url }}/api/public/settings?shop={{ shop.permanent_domain }}';
+  var isPreview   = new URLSearchParams(window.location.search).has('smart_banner_preview');
 
-  // Não mostrar se já foi fechado nessa sessão
-  if (sessionStorage.getItem(STORAGE_KEY)) return;
+  // Preview mode always shows — clear any prior "closed" state
+  if (!isPreview && sessionStorage.getItem(STORAGE_KEY)) return;
 
   window.smartBannerClose = function () {
     document.getElementById('smart-alert-banner').style.display = 'none';
@@ -79,8 +80,6 @@
     wrapper.style.display = 'block';
     startCountdown(settings.deadline);
   }
-
-  var isPreview = new URLSearchParams(window.location.search).has('smart_banner_preview');
 
   var DEFAULT_PREVIEW = {
     bannerText: '🎉 Smart Alert Banner — preview mode active',
