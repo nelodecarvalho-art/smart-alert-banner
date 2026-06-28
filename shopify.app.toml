@@ -2,7 +2,7 @@
 
 client_id = "f60a7fca2f7d0164558da2fa611a6272"
 name = "smart-alert-banner"
-application_url = "https://preppy-unwomanly-browsing.ngrok-free.dev"
+application_url = "https://smart-alert-banner-production.up.railway.app"
 embedded = true
 
 [build]
@@ -36,4 +36,4 @@ uri = "/webhooks/shop/redact"
 scopes = ""
 
 [auth]
-redirect_urls = [ "https://preppy-unwomanly-browsing.ngrok-free.dev/auth/callback" ]
+redirect_urls = [ "https://smart-alert-banner-production.up.railway.app/auth/callback" ]
