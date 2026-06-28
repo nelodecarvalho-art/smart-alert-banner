@@ -34,15 +34,9 @@ export async function action({ request }) {
   const planName = body.plan === "annual" ? PLAN_ANNUAL : PLAN_MONTHLY;
   const isTest = process.env.NODE_ENV !== "production";
 
-  const price     = planName === PLAN_ANNUAL ? 99.99 : 9.99;
-  const interval  = planName === PLAN_ANNUAL ? "ANNUAL" : "EVERY_30_DAYS";
-  const trialDays = 7;
-
   const subscription = await billing.request({
     plan: planName,
     isTest,
-    trialDays,
-    lineItems: [{ interval, amount: price, currencyCode: "USD" }],
     returnUrl: `https://${session.shop}/admin/apps/${process.env.SHOPIFY_API_KEY}`,
   });
 
