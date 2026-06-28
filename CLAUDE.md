@@ -4,10 +4,19 @@
 
 ### Status atual
 - **App em produção**: `https://smart-alert-banner-production.up.railway.app`
-- **OAuth**: funcionando — `Session.state` corrigido para nullable (migration `20260628000000_session_state_optional`)
+- **OAuth**: funcionando — `Session.state` corrigido para nullable
 - **Banner**: aparecendo com `?smart_banner_preview=1` — usa `position:fixed` + move para topo do DOM
-- **App Store**: registrado para distribuição pública ($19 pago) — próximo passo: completar listing
+- **App Store**: listing completo submetido para revisão — aguardando aprovação da Shopify (1–5 dias úteis)
 - **Extensão Shopify**: versão 9 (`smart-alert-banner-9`) publicada e ativa
+
+### App Store listing — concluído
+- **Ícone**: `public/icon-1200x1200.png` — gerado via `scripts/generate-icon.js` (sharp + SVG)
+- **Screenshots**: `public/screenshot-{1,2,3}.png` — gerados via `scripts/generate-screenshots.js`
+- **Textos**: tagline, short description, full description em `docs/appstore-listing.md`
+- **Privacy Policy**: `https://smart-alert-banner-production.up.railway.app/privacy`
+- **Support email**: nelodecarvalho@gmail.com
+- **Pricing**: Monthly $9.99 / Annual $99.99 / trial 7 dias (ambos)
+- **Checklist pós-aprovação**: `docs/pos-revisao-checklist.md`
 
 ### Infraestrutura
 - **Plataforma**: Railway — projeto `vibrant-rejoicing`, serviço `smart-alert-banner`
@@ -28,18 +37,13 @@
   - Roda `prisma migrate deploy` via spawnSync antes de subir o servidor
   - Define `HOST=0.0.0.0` para binding em todas as interfaces
 
-### Próximo passo: App Store listing
-Completar no Partner Dashboard:
-1. **Ícone**: 1200×1200px (exibido como 1024×1024)
-2. **Screenshots**: mínimo 3, 1280×720px ou maior
-3. **Descrição**: tagline + descrição longa com benefícios
-4. **Privacy Policy URL**: `https://smart-alert-banner-production.up.railway.app/privacy`
-5. **Support email**: nelodecarvalho@gmail.com
-6. **Pricing**: planos Monthly ($9.99) e Annual ($99.99) com trial de 7 dias
+### Próximo passo
+Aguardar email de aprovação da Shopify em nelodecarvalho@gmail.com.
+Após aprovação: seguir `docs/pos-revisao-checklist.md` (e2e tests, billing, monitoring, divulgação).
 
 ### Arquitetura das rotas
 - `app/routes/_index.jsx` — dashboard principal (AppProvider + boundary.headers + loader único)
-- `app/routes/api.billing.jsx` — verifica assinatura ativa
+- `app/routes/api.billing.jsx` — verifica e inicia assinatura (usa plano do shopify.server.js, sem lineItems redundantes)
 - `app/routes/api.public.settings.jsx` — API pública com rate limiting (100 req/min/IP)
 - `app/routes/privacy.jsx` — página pública de Privacy Policy
 - `app/routes/health.jsx` — health check (`/health` → `{"ok":true}`)
@@ -51,6 +55,7 @@ Completar no Partner Dashboard:
 - `prisma generate` no postinstall → falhava porque schema não copiado ainda → movido para Dockerfile após `COPY . .`
 - Banner com `position:sticky` + injeção no final do body → invisível → corrigido para `position:fixed`
 - `sessionStorage` check antes de preview check → preview bloqueado → reordenado
+- `billing.request()` com `lineItems` duplicados conflitando com config → removido, usa só `plan`
 
 
 
