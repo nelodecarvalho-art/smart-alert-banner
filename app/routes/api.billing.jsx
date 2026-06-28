@@ -9,7 +9,7 @@ export async function loader({ request }) {
   try {
     const billingCheck = await billing.require({
       plans: [PLAN_MONTHLY, PLAN_ANNUAL],
-      isTest: process.env.NODE_ENV !== "production",
+      isTest: process.env.BILLING_TEST_MODE === "true" || process.env.NODE_ENV !== "production",
     });
 
     const activeSub = billingCheck?.appSubscriptions?.[0];
@@ -32,7 +32,7 @@ export async function action({ request }) {
   } catch {}
 
   const planName = body.plan === "annual" ? PLAN_ANNUAL : PLAN_MONTHLY;
-  const isTest = process.env.NODE_ENV !== "production";
+  const isTest = process.env.BILLING_TEST_MODE === "true" || process.env.NODE_ENV !== "production";
 
   const subscription = await billing.request({
     plan: planName,
