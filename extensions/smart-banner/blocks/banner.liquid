@@ -82,17 +82,27 @@
 
   var isPreview = new URLSearchParams(window.location.search).has('smart_banner_preview');
 
+  var DEFAULT_PREVIEW = {
+    bannerText: '🎉 Smart Alert Banner — preview mode active',
+    targetState: 'CA',
+    showState: true,
+    backgroundColor: '#ff6b00',
+    textColor: '#ffffff',
+    isActive: true,
+    deadline: null,
+  };
+
   // 1. Buscar configurações do app
   fetch(API_URL)
     .then(function (r) { return r.json(); })
     .then(function (settings) {
-      if (!settings || !settings.isActive) return;
-
-      // Modo preview: pula geo-check, mostra banner direto
+      // Modo preview: ignora isActive e usa defaults se sem settings
       if (isPreview) {
-        showBanner(settings);
+        showBanner(settings && settings.bannerText ? settings : DEFAULT_PREVIEW);
         return;
       }
+
+      if (!settings || !settings.isActive) return;
 
       // 2. Detectar estado do visitante via IP
       fetch('https://ipapi.co/json/')
