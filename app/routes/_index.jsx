@@ -1,20 +1,50 @@
-import { useState, useEffect } from "react";
-import { useLoaderData } from "react-router";
-import { authenticate } from "../shopify.server";
+import { useState } from "react";
+import { useLoaderData, useRouteError } from "react-router";
+import { boundary } from "@shopify/shopify-app-react-router/server";
+import { AppProvider } from "@shopify/shopify-app-react-router/react";
+import { authenticate, MONTHLY_PLAN, ANNUAL_PLAN } from "../shopify.server";
+import db from "../db.server";
 
-// Loader — carrega settings e status de billing
+export function ErrorBoundary() {
+  return boundary.error(useRouteError());
+}
+
+export const headers = (headersArgs) => {
+  return boundary.headers(headersArgs);
+};
+
+const DEFAULT_SETTINGS = {
+  bannerText: "🎉 Free shipping for customers in your state!",
+  targetState: "CA",
+  showState: true,
+  backgroundColor: "#ff6b00",
+  textColor: "#ffffff",
+  isActive: true,
+  deadline: "",
+};
+
 export async function loader({ request }) {
-  const { billing } = await authenticate.admin(request);
+  const { session, billing } = await authenticate.admin(request);
 
-  const billingCheck = await billing.require({
-    plans: ["Smart Alert Banner - Monthly", "Smart Alert Banner - Annual"],
-    isTest: process.env.NODE_ENV !== "production",
-    onFailure: () => null,
-  }).catch(() => null);
+  const row = await db.bannerSetting.findFirst({ where: { shop: session.shop } });
+  const settings = row ? { ...row, deadline: row.deadline ?? "" } : DEFAULT_SETTINGS;
+
+  let hasSubscription = false;
+  try {
+    const check = await billing.require({
+      plans: [MONTHLY_PLAN, ANNUAL_PLAN],
+      isTest: true,
+    });
+    hasSubscription = !!(check?.appSubscriptions?.[0]);
+  } catch {
+    hasSubscription = false;
+  }
 
   return {
-    hasBilling: !!billingCheck,
-    appUrl: process.env.SHOPIFY_APP_URL || "",
+    apiKey: process.env.SHOPIFY_API_KEY || "",
+    shop: session.shop,
+    settings,
+    hasSubscription,
   };
 }
 
@@ -72,6 +102,16 @@ const ALL_US_STATES = [
   { value: "DC", label: "Washington D.C. (DC)" },
 ];
 
+function deadlineLabel(deadline) {
+  if (!deadline) return null;
+  const diff = new Date(deadline).getTime() - Date.now();
+  if (diff <= 0) return "⏰ Offer expired";
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  return d > 0 ? `⏰ ${d}d ${h}h ${m}m` : `⏰ ${h}h ${m}m`;
+}
+
 const S = {
   page: { maxWidth: 860, margin: "0 auto", padding: "24px 16px", fontFamily: "'Inter', system-ui, sans-serif" },
   header: { textAlign: "center", marginBottom: 36 },
@@ -101,34 +141,13 @@ const S = {
 };
 
 export default function Index() {
-  const { hasBilling } = useLoaderData();
+  const { apiKey, shop, settings: initialSettings, hasSubscription } = useLoaderData();
 
-  const [settings, setSettings] = useState({
-    bannerText: "🎉 Free shipping for customers in your state!",
-    targetState: "CA",
-    showState: true,
-    backgroundColor: "#ff6b00",
-    textColor: "#ffffff",
-    isActive: true,
-    deadline: "",
-  });
-
-  const [loading, setLoading]   = useState(true);
+  const [settings, setSettings] = useState(initialSettings);
   const [saving, setSaving]     = useState(false);
   const [success, setSuccess]   = useState(false);
   const [error, setError]       = useState(null);
   const [subLoading, setSubLoading] = useState(false);
-
-  // Carregar configurações salvas
-  useEffect(() => {
-    fetch("/api/settings")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data && !data.error) setSettings((prev) => ({ ...prev, ...data }));
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
 
   const handleChange = (field, value) =>
     setSettings((prev) => ({ ...prev, [field]: value }));
@@ -171,15 +190,8 @@ export default function Index() {
     }
   };
 
-  if (loading) {
-    return (
-      <div style={{ ...S.page, textAlign: "center", paddingTop: 80 }}>
-        <p style={{ color: "#888" }}>Loading your settings…</p>
-      </div>
-    );
-  }
-
   return (
+    <AppProvider embedded apiKey={apiKey}>
     <div style={S.page}>
       {/* Header */}
       <div style={S.header}>
@@ -192,7 +204,7 @@ export default function Index() {
       {error   && <div style={S.alertErr}>❌ {error}</div>}
 
       {/* Billing warning */}
-      {!hasBilling && (
+      {!hasSubscription && (
         <div style={S.billingBanner}>
           <span style={{ fontSize: "1.5rem" }}>⚡</span>
           <div style={{ flex: 1 }}>
@@ -347,7 +359,7 @@ export default function Index() {
             {settings.bannerText || "Your banner text here"}
             {settings.showState && (
               <span style={{ display: "block", fontSize: "0.8rem", opacity: 0.9, marginTop: 4 }}>
-                📍 {settings.targetState} only — Offer ends soon ⏰ 2h 30m
+                📍 {settings.targetState} only{deadlineLabel(settings.deadline) ? ` — ${deadlineLabel(settings.deadline)}` : ""}
               </span>
             )}
             <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", opacity: 0.7, fontSize: 14 }}>✕</span>
@@ -357,6 +369,50 @@ export default function Index() {
           </p>
         </div>
       </div>
+      {/* Test mode */}
+      {(() => {
+        const previewUrl = `https://${shop}?smart_banner_preview=1`;
+        return (
+          <div style={S.card}>
+            <p style={S.cardTitle}>🧪 Test on your store</p>
+            <p style={{ color: "#444", fontSize: "0.9rem", marginBottom: 16 }}>
+              The banner only shows for visitors from <strong>{settings.targetState}</strong>. Use the preview link below to see it from anywhere in the world — geo-check is skipped.
+            </p>
+            <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+              <a
+                href={previewUrl}
+                target="_blank"
+                rel="noreferrer"
+                style={{ ...S.btnPrimary, display: "inline-block", textDecoration: "none", textAlign: "center", width: "auto", padding: "12px 24px" }}
+              >
+                Open preview on store
+              </a>
+              <div style={{ flex: 1, minWidth: 200 }}>
+                <p style={{ margin: 0, fontSize: "0.78rem", color: "#888" }}>Or copy the URL:</p>
+                <code style={{ fontSize: "0.78rem", color: "#555", wordBreak: "break-all" }}>{previewUrl}</code>
+              </div>
+            </div>
+            <p style={{ marginTop: 12, fontSize: "0.78rem", color: "#aaa" }}>
+              This link is for testing only. Real customers see the banner based on their location.
+            </p>
+          </div>
+        );
+      })()}
+
+      {/* Installation instructions */}
+      <div style={S.card}>
+        <p style={S.cardTitle}>🛒 How to activate on your store</p>
+        <ol style={{ paddingLeft: 20, color: "#444", lineHeight: 2, margin: 0 }}>
+          <li>Go to <strong>Online Store → Themes</strong> in your Shopify admin.</li>
+          <li>Click <strong>Customize</strong> on your active theme.</li>
+          <li>Select <strong>App embeds</strong> (the puzzle-piece icon in the left sidebar).</li>
+          <li>Toggle on <strong>Smart Alert Banner</strong> and click <strong>Save</strong>.</li>
+        </ol>
+        <p style={{ marginTop: 12, fontSize: "0.85rem", color: "#888" }}>
+          The banner will only appear to visitors from the target state you configured above.
+        </p>
+      </div>
     </div>
+    </AppProvider>
   );
 }

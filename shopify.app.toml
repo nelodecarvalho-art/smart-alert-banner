@@ -2,7 +2,7 @@
 
 client_id = "f60a7fca2f7d0164558da2fa611a6272"
 name = "smart-alert-banner"
-application_url = "https://example.com"
+application_url = "https://preppy-unwomanly-browsing.ngrok-free.dev"
 embedded = true
 
 [build]
@@ -16,4 +16,4 @@ api_version = "2026-07"
 scopes = ""
 
 [auth]
-redirect_urls = [ "https://example.com/api/auth" ]
+redirect_urls = [ "https://preppy-unwomanly-browsing.ngrok-free.dev/auth/callback" ]

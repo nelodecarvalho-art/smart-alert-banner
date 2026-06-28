@@ -27,7 +27,7 @@
 <script>
 (function () {
   var STORAGE_KEY = 'sab_closed_{{ shop.id }}';
-  var API_URL     = '{{ app.url }}/api/settings';
+  var API_URL     = '{{ app.url }}/api/public/settings?shop={{ shop.permanent_domain }}';
 
   // Não mostrar se já foi fechado nessa sessão
   if (sessionStorage.getItem(STORAGE_KEY)) return;
@@ -80,11 +80,19 @@
     startCountdown(settings.deadline);
   }
 
+  var isPreview = new URLSearchParams(window.location.search).has('smart_banner_preview');
+
   // 1. Buscar configurações do app
   fetch(API_URL)
     .then(function (r) { return r.json(); })
     .then(function (settings) {
       if (!settings || !settings.isActive) return;
+
+      // Modo preview: pula geo-check, mostra banner direto
+      if (isPreview) {
+        showBanner(settings);
+        return;
+      }
 
       // 2. Detectar estado do visitante via IP
       fetch('https://ipapi.co/json/')
@@ -96,7 +104,6 @@
           }
         })
         .catch(function () {
-          // Fallback: mostrar para todos se a geolocalização falhar
           showBanner(settings);
         });
     })
@@ -105,3 +112,10 @@
     });
 })();
 </script>
+
+{% schema %}
+{
+  "name": "Smart Alert Banner",
+  "target": "body"
+}
+{% endschema %}

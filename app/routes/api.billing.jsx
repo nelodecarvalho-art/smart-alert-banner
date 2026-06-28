@@ -10,12 +10,11 @@ export async function loader({ request }) {
     const billingCheck = await billing.require({
       plans: [PLAN_MONTHLY, PLAN_ANNUAL],
       isTest: process.env.NODE_ENV !== "production",
-      onFailure: () => null,
     });
 
     const activeSub = billingCheck?.appSubscriptions?.[0];
     return Response.json({
-      hasSubscription: true,
+      hasSubscription: !!activeSub,
       plan: activeSub?.name ?? null,
       status: activeSub?.status ?? null,
     });
