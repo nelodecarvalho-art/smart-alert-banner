@@ -3,8 +3,8 @@ builder = "nixpacks"
 buildCommand = "npm ci && npx prisma generate && npx prisma migrate deploy && npm run build"
 
 [deploy]
-startCommand = "npm run start"
-healthcheckPath = "/api/public/settings?shop=health"
+startCommand = "HOST=0.0.0.0 npm run start"
+healthcheckPath = "/health"
 healthcheckTimeout = 60
 restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
