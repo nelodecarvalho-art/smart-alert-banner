@@ -263,6 +263,57 @@ nelodecarvalho@gmail.com
 
 ---
 
+## 6. LinkedIn — post de fundador
+
+```
+I spent the last few weeks building a Shopify app that solves a problem I kept seeing merchants struggle with: showing the right message to customers in a specific US state.
+
+The workarounds I've seen: hardcoding Liquid conditionals that break on theme updates, showing the banner to everyone and hoping most people ignore it, or just giving up and sending a blanket email instead.
+
+Smart Alert Banner does one thing well: it detects the visitor's US state via IP and shows a custom banner — only to them. Free shipping for California. A flash sale in Texas. A sales tax holiday alert for Florida. Everyone else sees the store normally.
+
+Zero code required. Installs as a Shopify App Embed Block in under 2 minutes.
+
+If you run a Shopify store and have ever wanted to speak directly to customers in a specific state — this is for you.
+
+7-day free trial, then $9.99/month or $99.99/year.
+
+[link to listing]
+
+#Shopify #ecommerce #shopifydeveloper #saas #indiedev
+```
+
+---
+
+## 7. Email — boas-vindas ao primeiro usuário
+
+**Assunto:** Welcome to Smart Alert Banner — quick tip to get your first banner live
+
+```
+Hi there,
+
+Thanks for installing Smart Alert Banner — I'm Nelo, the developer, and I built this app to make state-specific promotions effortless for Shopify merchants.
+
+Quick reminder to get your banner live in the next 5 minutes:
+
+1. Open the app → fill in your banner text, pick a target state, choose your colors
+2. Hit Save Settings
+3. Go to Online Store → Themes → Customize → App Embeds → toggle on Smart Alert Banner → Save
+
+That's it. Use the preview link (add ?smart_banner_preview=1 to your store URL) to see it live from anywhere in the world.
+
+---
+
+One small ask: if you run into any friction, confusion, or have a use case the app doesn't cover yet — reply to this email. I read every reply personally and it directly shapes what I build next.
+
+Thanks for being one of the first users.
+
+— Nelo
+nelodecarvalho@gmail.com
+```
+
+---
+
 ## Checklist de publicação
 
 Aguardar URL pública do listing antes de publicar qualquer post.
@@ -274,3 +325,5 @@ Aguardar URL pública do listing antes de publicar qualquer post.
 - [ ] IndieHackers — publicar com link real
 - [ ] Twitter/X — publicar sequência de 3 tweets (com screenshot real)
 - [ ] Product Hunt — agendar launch (terças ou quartas, 12:01 AM PT)
+- [ ] LinkedIn — publicar post de fundador
+- [ ] Email de boas-vindas — configurar no Partner Dashboard ou enviar manualmente para primeiros usuários
