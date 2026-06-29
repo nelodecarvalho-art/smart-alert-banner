@@ -200,7 +200,7 @@ export default function Index() {
       </div>
 
       {/* Alerts */}
-      {success && <div style={S.alertOk}>✅ Settings saved successfully! Your banner is now live.</div>}
+      {success && <div style={S.alertOk}>✅ Settings saved! To go live, make sure Smart Alert Banner is enabled in <strong>Online Store → Themes → Customize → App Embeds</strong>.</div>}
       {error   && <div style={S.alertErr}>❌ {error}</div>}
 
       {/* Billing warning */}
@@ -210,7 +210,7 @@ export default function Index() {
           <div style={{ flex: 1 }}>
             <strong>Start your free 7-day trial</strong>
             <p style={{ margin: "4px 0 0", color: "#666", fontSize: "0.88rem" }}>
-              Activate a plan to publish your banner to real customers.
+              Activate a plan, then enable the App Embed in your theme to go live.
             </p>
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -224,9 +224,23 @@ export default function Index() {
         </div>
       )}
 
+      {/* Installation instructions — shown before the form so new users don't miss the App Embed step */}
+      <div style={S.card}>
+        <p style={S.cardTitle}>🛒 Step 1 — Activate on your store</p>
+        <ol style={{ paddingLeft: 20, color: "#444", lineHeight: 2, margin: 0 }}>
+          <li>Go to <strong>Online Store → Themes</strong> in your Shopify admin.</li>
+          <li>Click <strong>Customize</strong> on your active theme.</li>
+          <li>Select <strong>App embeds</strong> (the puzzle-piece icon in the left sidebar).</li>
+          <li>Toggle on <strong>Smart Alert Banner</strong> and click <strong>Save</strong>.</li>
+        </ol>
+        <p style={{ marginTop: 12, fontSize: "0.85rem", color: "#888" }}>
+          Do this once — then configure your banner below and it goes live immediately.
+        </p>
+      </div>
+
       {/* Banner settings */}
       <div style={S.card}>
-        <p style={S.cardTitle}>⚙️ Banner Settings</p>
+        <p style={S.cardTitle}>⚙️ Step 2 — Configure your banner</p>
 
         {/* Active toggle */}
         <div style={S.toggleRow}>
@@ -399,19 +413,6 @@ export default function Index() {
         );
       })()}
 
-      {/* Installation instructions */}
-      <div style={S.card}>
-        <p style={S.cardTitle}>🛒 How to activate on your store</p>
-        <ol style={{ paddingLeft: 20, color: "#444", lineHeight: 2, margin: 0 }}>
-          <li>Go to <strong>Online Store → Themes</strong> in your Shopify admin.</li>
-          <li>Click <strong>Customize</strong> on your active theme.</li>
-          <li>Select <strong>App embeds</strong> (the puzzle-piece icon in the left sidebar).</li>
-          <li>Toggle on <strong>Smart Alert Banner</strong> and click <strong>Save</strong>.</li>
-        </ol>
-        <p style={{ marginTop: 12, fontSize: "0.85rem", color: "#888" }}>
-          The banner will only appear to visitors from the target state you configured above.
-        </p>
-      </div>
     </div>
     </AppProvider>
   );
