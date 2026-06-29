@@ -5,6 +5,14 @@ Prazo esperado de resposta: 1–5 dias úteis
 
 ---
 
+## 0. Deploy imediato após aprovação
+
+- [ ] Rodar `npx shopify app deploy` para sincronizar o `shopify.app.toml` com o Partner Dashboard
+  - Isso registra os 3 webhooks GDPR (`customers/data_request`, `customers/redact`, `shop/redact`)
+  - Sem esse deploy, a Shopify não sabe para onde enviar as chamadas GDPR
+
+---
+
 ## 1. Email de aprovação
 
 **O que esperar:**
