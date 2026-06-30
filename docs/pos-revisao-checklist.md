@@ -5,11 +5,12 @@ Prazo esperado de resposta: 1–5 dias úteis
 
 ---
 
-## 0. Deploy imediato após aprovação
+## 0. Deploy — CONCLUÍDO em 2026-06-30
 
-- [ ] Rodar `npx shopify app deploy` para sincronizar o `shopify.app.toml` com o Partner Dashboard
-  - Isso registra os 3 webhooks GDPR (`customers/data_request`, `customers/redact`, `shop/redact`)
-  - Sem esse deploy, a Shopify não sabe para onde enviar as chamadas GDPR
+- [x] `npx shopify app deploy --allow-updates` — versão `smart-alert-banner-11` publicada ✅
+  - **Nota:** webhooks GDPR (`customers/data_request`, `customers/redact`, `shop/redact`) NÃO se registram via toml (API 2026-07+). Foram removidos do `shopify.app.toml`.
+  - Os handlers no código continuam intactos (`app/routes/webhooks.*.jsx`).
+  - **Ação pendente:** confirmar no Partner Dashboard → App setup → GDPR webhooks que as 3 URLs estão preenchidas com `https://smart-alert-banner-production.up.railway.app/webhooks/...`
 
 ---
 
