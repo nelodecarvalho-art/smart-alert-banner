@@ -173,21 +173,12 @@ export default function Index() {
     }
   };
 
-  const startSubscription = async (plan) => {
+  const startSubscription = (plan) => {
     setSubLoading(true);
-    try {
-      const r = await fetch("/api/billing", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan }),
-      });
-      const data = await r.json();
-      if (data.confirmationUrl) window.top.location.href = data.confirmationUrl;
-    } catch {
-      setError("Failed to start subscription. Please try again.");
-    } finally {
-      setSubLoading(false);
-    }
+    // billing.request() on the server throws a top-level redirect
+    // ("exit-iframe") response — it must be reached via a real navigation,
+    // not fetch(), otherwise the browser gets HTML where JSON was expected.
+    window.top.location.href = `/api/billing?plan=${plan}`;
   };
 
   return (

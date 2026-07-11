@@ -27,7 +27,11 @@
 <script>
 (function () {
   var STORAGE_KEY = 'sab_closed_{{ shop.id }}';
-  var API_URL     = '{{ app.url }}/api/public/settings?shop={{ shop.permanent_domain }}';
+  // Liquid's `app` object only exposes `app.metafields` — there is no
+  // `app.url`/`app.domain` property in theme app extensions, so the
+  // backend URL must be hardcoded to this app's single production domain.
+  var APP_URL = 'https://smart-alert-banner-production.up.railway.app';
+  var API_URL = APP_URL + '/api/public/settings?shop={{ shop.permanent_domain }}';
   var isPreview   = new URLSearchParams(window.location.search).has('smart_banner_preview');
 
   // Preview mode always shows — bypass sessionStorage
