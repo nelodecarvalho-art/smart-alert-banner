@@ -175,10 +175,13 @@ export default function Index() {
 
   const startSubscription = (plan) => {
     setSubLoading(true);
-    // billing.request() on the server throws a top-level redirect
-    // ("exit-iframe") response — it must be reached via a real navigation,
-    // not fetch(), otherwise the browser gets HTML where JSON was expected.
-    window.top.location.href = `/api/billing?plan=${plan}`;
+    // billing.request() needs the shop/host/embedded params Shopify injects
+    // into the current URL to authenticate and to trigger its own exit-iframe
+    // redirect correctly — navigate within the iframe (not window.top) and
+    // carry those params forward instead of building a bare URL.
+    const params = new URLSearchParams(window.location.search);
+    params.set("plan", plan);
+    window.location.href = `/api/billing?${params.toString()}`;
   };
 
   return (
