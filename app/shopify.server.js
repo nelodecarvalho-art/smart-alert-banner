@@ -21,16 +21,20 @@ const shopify = shopifyApp({
   sessionStorage: new PrismaSessionStorage(prisma),
   distribution: AppDistribution.AppStore,
   billing: {
+    // Plans must be either a one-time purchase (interval: OneTime) or a
+    // subscription with a `lineItems` array — a flat amount/currencyCode/
+    // interval shape is rejected by billing.request() at runtime with
+    // "Invalid billing configuration for plan ...".
     [MONTHLY_PLAN]: {
-      amount: 9.99,
-      currencyCode: "USD",
-      interval: BillingInterval.Every30Days,
+      lineItems: [
+        { amount: 9.99, currencyCode: "USD", interval: BillingInterval.Every30Days },
+      ],
       trialDays: 7,
     },
     [ANNUAL_PLAN]: {
-      amount: 99.99,
-      currencyCode: "USD",
-      interval: BillingInterval.Annual,
+      lineItems: [
+        { amount: 99.99, currencyCode: "USD", interval: BillingInterval.Annual },
+      ],
       trialDays: 7,
     },
   },
